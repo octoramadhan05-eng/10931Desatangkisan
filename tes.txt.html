@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Peta Interaktif Desa Tangkisan" />
+    <meta name="author" content="" />
+
+    <!-- JUDUL TAB BROWSER -->
+    <title>Desa Tangkisan</title>
+
+    <!-- FAVICON / ICON TAB BROWSER -->
+    <link rel="icon" type="image/png" href="assets/image/icon.png" />
+
+    <!-- Bootstrap CSS -->
+    <link href="css/styles.css" rel="stylesheet" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+    <!-- Mapbox GL JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+
+    <!-- Mapbox Directions -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css" />
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+
+            /* BACKGROUND GAMBAR */
+            background: 
+                linear-gradient(rgba(17, 24, 39, 0.28), rgba(17, 24, 39, 0.28)),
+                url('assets/image/header.png') center center / cover no-repeat fixed;
+        }
+
+        /* =========================
+           NAVBAR
+        ========================= */
+        .navbar {
+            background: rgba(29, 78, 216, 0.88);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            padding: 0 5%;
+            min-height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .navbar-nav {
+            list-style: none;
+            display: flex;
+            flex-direction: row;
+            gap: 28px;
+            margin: 0;
+            padding: 0;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .navbar-nav li {
+            display: inline-block;
+        }
+
+        .navbar-nav a {
+            color: #eaf2ff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: 0.2s ease;
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+
+        .navbar-nav a:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.14);
+        }
+
+        /* =========================
+           HEADER TRANSPARAN
+        ========================= */
+        .page-header {
+            background: rgba(29, 78, 216, 0.68);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 34px 5% 40px;
+            text-align: center;
+            color: #fff;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+        }
+
+        .page-header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .page-header p {
+            font-size: 1rem;
+            color: #dbeafe;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.18);
+        }
+
+        /* =========================
+           MAIN CONTENT
+        ========================= */
+        main {
+            flex: 1;
+            padding: 28px 5% 40px;
+        }
+
+        .content-row {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        /* PETUNJUK */
+        .card-petunjuk {
+            width: 280px;
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.16);
+            overflow: hidden;
+        }
+
+        .card-petunjuk .card-header {
+            background-color: rgba(29, 78, 216, 0.96);
+            color: #fff;
+            font-weight: 600;
+            padding: 14px 16px;
+            font-size: 1rem;
+        }
+
+        .card-petunjuk .card-body {
+            padding: 16px;
+            font-size: 0.9rem;
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .card-petunjuk .card-body p {
+            margin-bottom: 10px;
+        }
+
+        /* MAP CARD */
+        .card-map {
+            flex: 1;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.16);
+            overflow: hidden;
+        }
+
+        .map-wrapper {
+            position: relative;
+            width: 100%;
+            height: 500px;
+        }
+
+        #map {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #fly {
+            position: absolute;
+            top: 10px;
+            left: 50px;
+            z-index: 10;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 7px 15px;
+            font-size: 12px;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        #fly:hover {
+            background: #dc2626;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 24px;
+            left: 10px;
+            z-index: 10;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border-radius: 10px;
+            padding: 12px 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+            font: 12px/20px 'Poppins', sans-serif;
+        }
+
+        .legend h4 {
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #1d4ed8;
+            font-size: 1.6rem;
+        }
+
+        .legend div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+            font-size: 0.85rem;
+            color: #333;
+        }
+
+        .legend div span {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 2px;
+            border: 1px solid #aaa;
+        }
+
+        /* FOOTER */
+        footer {
+            background: rgba(29, 78, 216, 0.88);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            color: #dbeafe;
+            text-align: center;
+            padding: 18px;
+            font-size: 0.85rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.12);
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+        @media (max-width: 992px) {
+            .content-row {
+                flex-direction: column;
+            }
+
+            .card-petunjuk {
+                width: 100%;
+            }
+
+            .map-wrapper {
+                height: 460px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .page-header h1 {
+                font-size: 1.7rem;
+            }
+
+            .page-header p {
+                font-size: 0.92rem;
+            }
+
+            .navbar {
+                padding: 10px 5%;
+            }
+
+            .navbar-nav {
+                gap: 14px;
+            }
+
+            .map-wrapper {
+                height: 420px;
+            }
+
+            #fly {
+                left: 45px;
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <ul class="navbar-nav">
+            <li><a href="#!">Home</a></li>
+            <li><a href="#!">About</a></li>
+            <li><a href="#!">Services</a></li>
+            <li><a href="#!">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <h1>Peta Interaktif</h1>
+        <p>Daerah Desa Tangkisan</p>
+    </div>
+
+    <!-- MAIN -->
+    <main>
+        <div class="content-row">
+
+            <!-- Petunjuk -->
+            <div class="card-petunjuk">
+                <div class="card-header">Petunjuk</div>
+                <div class="card-body">
+                    <p>1. Gunakan tombol zoom in / zoom out dan reset bearing untuk mengatur posisi peta.</p>
+                    <p>2. Titik awal rute ditentukan dari tombol <strong>Lokasi Awal</strong>.</p>
+                    <p>3. Klik tombol <strong>Lokasi Awal</strong> untuk menampilkan titik awal pada peta.</p>
+                    <p>4. Klik salah satu bangunan sebagai tujuan destinasi.</p>
+                    <p>5. Rute ditampilkan sebagai garis biru pada peta.</p>
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div class="card-map">
+                <div class="map-wrapper">
+                    <div id="map"></div>
+                    <button id="fly">Lokasi Awal</button>
+
+                    <div class="legend">
+                        <h4>Legenda</h4>
+                        <div><span style="background-color: #4299e1;"></span>Masjid</div>
+                        <div><span style="background-color: #ff6e40;"></span>Rumah</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>Copyright &copy; Desa Tangkisan 2024</p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ============================================================
+        // ACCESS TOKEN MAPBOX
+        // ============================================================
+        mapboxgl.accessToken = 'pk.eyJ1Ijoib2N0b3JhbWFkaGFuMDUiLCJhIjoiY21ucTVkeWp4MDN0dTJyb2tnd3BxeHNiYyJ9.sCBZspT04lvgK07aC1-E-g';
+
+        // ============================================================
+        // KOORDINAT TITIK AWAL
+        // lat, lon = -7.705926, 110.799929
+        // Mapbox pakai [lon, lat]
+        // ============================================================
+        const lokasiTetap = [110.799929, -7.705926];
+
+        const start = {
+            center: lokasiTetap,
+            zoom: 15,
+            pitch: 0,
+            bearing: 0
+        };
+
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: lokasiTetap,
+            zoom: 15,
+            ...start
+        });
+
+        // ============================================================
+        // MAPBOX DIRECTIONS
+        // ============================================================
+        const directions = new MapboxDirections({
+            accessToken: mapboxgl.accessToken,
+            unit: 'metric',
+            profile: 'mapbox/driving',
+            language: 'id',
+            controls: {
+                instructions: true,
+                profileSwitcher: true
+            }
+        });
+
+        map.addControl(directions, 'top-right');
+
+        // ============================================================
+        // NAVIGATION CONTROL
+        // ============================================================
+        map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+
+        // ============================================================
+        // POPUP
+        // ============================================================
+        const popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: true
+        });
+
+        // ============================================================
+        // LOAD DATA
+        // ============================================================
+        map.on('load', () => {
+
+            // Titik awal default untuk routing
+            directions.setOrigin(lokasiTetap);
+
+            // Marker titik awal
+            new mapboxgl.Marker({ color: '#2563eb' })
+                .setLngLat(lokasiTetap)
+                .setPopup(new mapboxgl.Popup().setText('Titik Awal'))
+                .addTo(map);
+
+            // ========================
+            // SOURCE MASJID
+            // ========================
+            map.addSource('masjid', {
+                type: 'geojson',
+                data: 'assets/geojson/Masjid.geojson'
+            });
+
+            map.addLayer({
+                id: 'masjid',
+                type: 'fill',
+                source: 'masjid',
+                layout: {},
+                paint: {
+                    'fill-color': '#4299e1',
+                    'fill-opacity': 0.8
+                }
+            });
+
+            map.addLayer({
+                id: 'outline_masjid',
+                type: 'line',
+                source: 'masjid',
+                layout: {},
+                paint: {
+                    'line-color': 'black',
+                    'line-width': 1
+                }
+            });
+
+            // ========================
+            // SOURCE RUMAH
+            // ========================
+            map.addSource('rumah', {
+                type: 'geojson',
+                data: 'assets/geojson/Rumah.geojson'
+            });
+
+            map.addLayer({
+                id: 'rumah',
+                type: 'fill',
+                source: 'rumah',
+                layout: {},
+                paint: {
+                    'fill-color': '#ff6e40',
+                    'fill-opacity': 0.8
+                }
+            });
+
+            map.addLayer({
+                id: 'outline_rumah',
+                type: 'line',
+                source: 'rumah',
+                layout: {},
+                paint: {
+                    'line-color': 'black',
+                    'line-width': 1
+                }
+            });
+
+            // ============================================================
+            // KLIK BANGUNAN = SET TUJUAN ROUTE
+            // ============================================================
+            map.on('click', 'masjid', (e) => {
+                const coordinates = e.lngLat.toArray();
+                directions.setOrigin(lokasiTetap);
+                directions.setDestination(coordinates);
+            });
+
+            map.on('click', 'rumah', (e) => {
+                const coordinates = e.lngLat.toArray();
+                directions.setOrigin(lokasiTetap);
+                directions.setDestination(coordinates);
+            });
+
+            // Cursor pointer
+            map.on('mouseenter', 'masjid', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+
+            map.on('mouseleave', 'masjid', () => {
+                map.getCanvas().style.cursor = '';
+            });
+
+            map.on('mouseenter', 'rumah', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+
+            map.on('mouseleave', 'rumah', () => {
+                map.getCanvas().style.cursor = '';
+            });
+
+            // Popup Masjid
+            map.on('mouseenter', 'masjid', (e) => {
+                const feature = e.features[0];
+                popup.setLngLat(e.lngLat)
+                    .setText(feature.properties.Nama || "Masjid")
+                    .addTo(map);
+            });
+
+            map.on('mouseleave', 'masjid', () => {
+                popup.remove();
+            });
+
+            // Popup Rumah
+            map.on('mouseenter', 'rumah', (e) => {
+                const feature = e.features[0];
+                popup.setLngLat(e.lngLat)
+                    .setText(feature.properties.Nama || "Rumah")
+                    .addTo(map);
+            });
+
+            map.on('mouseleave', 'rumah', () => {
+                popup.remove();
+            });
+        });
+
+        // ============================================================
+        // TOMBOL LOKASI AWAL
+        // ============================================================
+        document.getElementById('fly').addEventListener('click', () => {
+            map.flyTo({
+                center: lokasiTetap,
+                zoom: 18,
+                bearing: 0,
+                pitch: 0,
+                duration: 2000,
+                essential: true
+            });
+
+            directions.setOrigin(lokasiTetap);
+        });
+    </script>
+</body>
+</html>
